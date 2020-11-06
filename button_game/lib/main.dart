@@ -1,10 +1,10 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(MyApp());
 }
+
+bool stop = false;
 
 class MyApp extends StatelessWidget {
   @override
@@ -30,7 +30,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _hours = 0, _minutes = 0, _seconds = 0;
-  bool _started = false, stop = false;
+  bool _started = false;
   Duration _second = new Duration(seconds: 1);
 
   Stream _onGoing;
@@ -40,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _onGoing = waiting();
       _started = !_started;
       _onGoing.listen((data) => _incrementCounter());
+      stop = false;
     } else {
       stop = !stop;
     }
@@ -56,6 +57,10 @@ class _MyHomePageState extends State<MyHomePage> {
       yield i++;
       if (i == maxCount) break;
     } while (true);
+  }
+
+  void reset() {
+    _hours = _minutes = _seconds = 0;
   }
 
   void _incrementCounter() {
@@ -93,25 +98,51 @@ class _MyHomePageState extends State<MyHomePage> {
               '${hourstoString()}:${minutestoString()}:${secondstoString()}',
               style: Theme.of(context).textTheme.headline4,
             ),
-            Row(
-              children: <Widget>[
-                ButtonBar(
-                  children: <Widget>[
-                    FlatButton(
-                      onPressed: null,
-                      child: null)
-                    )
-                  ],
-                )
-              ],
+            Container(
+              child: ButtonBar(
+                alignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  FlatButton(
+                      onPressed: startTimer,
+                      child: Text(
+                          "${(_started) ? (stop) ? "START" : "STOP" : "START"}")),
+                  FlatButton(
+                      onPressed: reset,
+                      child: Text(
+                          "${(stop) ? "RESET" : ""}") // have to add the laps
+                      )
+                ],
+              ),
             )
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: startTimer,
-        tooltip: 'Start and stop the chronometer',
-        child: Icon(Icons.access_time),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
+      bottomNavigationBar: BottomAppBar(
+        child: Stack(alignment: Alignment.bottomCenter, children: <Widget>[
+          ButtonBar(
+            children: <Widget>[
+              RaisedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyApp()),
+                  );
+                },
+                child: Text("Chronometer"),
+              ),
+              RaisedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SecondRoute()),
+                  );
+                },
+                child: Text("Timer"),
+              )
+            ],
+          ),
+        ]),
       ),
     );
   }
@@ -141,11 +172,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class SecondRoute extends StatelessWidget{
+class SecondRoute extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: Timer,
+      appBar: AppBar(
+        title: Text("Timer"),
+      ),
+      body: Center(),
     );
   }
 }
