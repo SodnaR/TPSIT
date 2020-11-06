@@ -1,14 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(MyApp());
 }
-
-int _hours = 0, _minutes = 0, _seconds = 0;
-bool _started = false;
-Duration _second = new Duration(seconds: 1);
-
-Stream _onGoing;
 
 class MyApp extends StatelessWidget {
   @override
@@ -19,7 +15,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Chronometer'),
     );
   }
 }
@@ -33,14 +29,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int _hours = 0, _minutes = 0, _seconds = 0;
+  bool _started = false, stop = false;
+  Duration _second = new Duration(seconds: 1);
+
+  Stream _onGoing;
+
   void startTimer() {
     if (!_started) {
       _onGoing = waiting();
+      _started = !_started;
+      _onGoing.listen((data) => _incrementCounter());
     } else {
-      _onGoing.listen(null).resume();
+      stop = !stop;
     }
-
-    _onGoing.listen((data) => _incrementCounter());
   }
 
   void stopTimer() {
@@ -58,19 +60,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _incrementCounter() {
     setState(() {
-      if (_seconds < 60) {
-        _seconds++;
-      } else if (_minutes < 60) {
-        _minutes++;
-        _seconds = 0;
-      } else if (_hours < 24) {
-        _hours++;
-        _minutes = 0;
-        _seconds = 0;
-      } else {
-        _hours = 0;
-        _minutes = 0;
-        _seconds = 0;
+      if (!stop) {
+        if (_seconds < 59) {
+          _seconds++;
+        } else if (_minutes < 59) {
+          _minutes++;
+          _seconds = 00;
+        } else if (_hours < 23) {
+          _hours++;
+          _minutes = 00;
+          _seconds = 00;
+        } else {
+          _hours = 00;
+          _minutes = 00;
+          _seconds = 00;
+        }
       }
     });
   }
@@ -86,20 +90,62 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '00:00:00',
+              '${hourstoString()}:${minutestoString()}:${secondstoString()}',
               style: Theme.of(context).textTheme.headline4,
             ),
+            Row(
+              children: <Widget>[
+                ButtonBar(
+                  children: <Widget>[
+                    FlatButton(
+                      onPressed: null,
+                      child: null)
+                    )
+                  ],
+                )
+              ],
+            )
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: startTimer,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
+        tooltip: 'Start and stop the chronometer',
+        child: Icon(Icons.access_time),
       ),
+    );
+  }
+
+  String hourstoString() {
+    if (_hours < 10) {
+      return "0$_hours";
+    } else {
+      return "$_hours";
+    }
+  }
+
+  String minutestoString() {
+    if (_minutes < 10) {
+      return "0$_minutes";
+    } else {
+      return "$_minutes";
+    }
+  }
+
+  String secondstoString() {
+    if (_seconds < 10) {
+      return "0$_seconds";
+    } else {
+      return "$_seconds";
+    }
+  }
+}
+
+class SecondRoute extends StatelessWidget{
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: Timer,
     );
   }
 }
