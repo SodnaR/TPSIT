@@ -3,21 +3,54 @@ import 'package:flutter/material.dart';
 import 'package:imagebutton/imagebutton.dart';
 
 Socket _socket;
-
 bool _inGame = false;
 
+SocketException exception;
+
 void main() {
-  Socket.connect("127.0.0.1", 3000).then((socket) {
-    print('Connected to: '
-        '${socket.remoteAddress.address}:${socket.remotePort}');
-    _socket = socket;
-    runApp(MyApp());
-    socket.destroy();
-  }).catchError((e) {
-    if (e is SocketException) print('SocketException => $e');
-    runApp(ServerApp());
-  });
-  runApp(MyApp());
+//  do {
+    Socket.connect("192.168.1.105", 3000).then((socket) {
+      print('Connected to: '
+          '${socket.remoteAddress.address}:${socket.remotePort}');
+      _socket = socket;
+      runApp(MyApp());
+//      socket.destroy();
+    }).catchError((e) {
+      if (e is SocketException) {
+        print('SocketException => $e');
+        exception = e;
+      }
+      runApp(ServerApp());
+    });
+//  } while (exception != null);
+}
+
+class ServerApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(home: ServerNotFound(title: "Can't find the server"));
+  }
+}
+
+class ServerNotFound extends StatefulWidget {
+  ServerNotFound({Key key, this.title}) : super(key: key);
+  final String title;
+
+  @override
+  _ServerNotFoundState createState() => _ServerNotFoundState();
+}
+
+class _ServerNotFoundState extends State<ServerNotFound> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Row(
+          children: [Text("Can't reach the server")],
+        ),
+      ),
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -62,6 +95,25 @@ class _MyHomePageState extends State<MyHomePage> {
   String wait() {
     searching.listen((data) => pointAnimation());
     return dot;
+  }
+
+  void pointAnimation() {
+    setState(() {
+      switch (no) {
+        case 1:
+          no++;
+          dot = "..";
+          break;
+        case 2:
+          no++;
+          dot = "...";
+          break;
+        case 3:
+          no = 1;
+          dot = ".";
+          break;
+      }
+    });
   }
 
   @override
@@ -116,25 +168,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void pointAnimation() {
-    setState(() {
-      switch (no) {
-        case 1:
-          no++;
-          dot = "..";
-          break;
-        case 2:
-          no++;
-          dot = "...";
-          break;
-        case 3:
-          no = 1;
-          dot = ".";
-          break;
-      }
-    });
-  }
-
   Widget myButton(String path) {
     return ImageButton(
       children: <Widget>[],
@@ -148,48 +181,6 @@ class _MyHomePageState extends State<MyHomePage> {
       onTap: () {
         print('test');
       },
-    );
-  }
-}
-
-class ServerApp extends StatelessWidget {
-  build(BuildContext context) {
-    return MaterialApp(
-      /*
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      */
-      home: ServerNotFound(title: "Can't find Morra cinese"),
-    );
-  }
-}
-
-class ServerNotFound extends StatefulWidget {
-  ServerNotFound({Key key, this.title}) : super(key: key);
-  final String title;
-
-  @override
-  _ServerNotFoundState createState() => _ServerNotFoundState();
-}
-
-class _ServerNotFoundState extends State<MyHomePage> {
-  String dot = ".";
-  int no = 1;
-  Stream searching;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Row(
-          children: [
-            Text("Connessione al server non riuscita"),
-          ],
-        ),
-      ),
     );
   }
 }

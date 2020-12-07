@@ -15,7 +15,6 @@ void main() {
     socket.destroy();
   }).catchError((e) {
     if (e is SocketException) print('SocketException => $e');
-    runApp(ServerApp());
   });
   runApp(MyApp());
 }
@@ -62,6 +61,23 @@ class _MyHomePageState extends State<MyHomePage> {
   String wait() {
     searching.listen((data) => pointAnimation());
     return dot;
+  }
+
+  void pointAnimation() {
+    switch (no) {
+      case 1:
+        no++;
+        dot = "..";
+        break;
+      case 2:
+        no++;
+        dot = "...";
+        break;
+      case 3:
+        no = 1;
+        dot = ".";
+        break;
+    }
   }
 
   @override
@@ -116,25 +132,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void pointAnimation() {
-    setState(() {
-      switch (no) {
-        case 1:
-          no++;
-          dot = "..";
-          break;
-        case 2:
-          no++;
-          dot = "...";
-          break;
-        case 3:
-          no = 1;
-          dot = ".";
-          break;
-      }
-    });
-  }
-
   Widget myButton(String path) {
     return ImageButton(
       children: <Widget>[],
@@ -148,48 +145,6 @@ class _MyHomePageState extends State<MyHomePage> {
       onTap: () {
         print('test');
       },
-    );
-  }
-}
-
-class ServerApp extends StatelessWidget {
-  build(BuildContext context) {
-    return MaterialApp(
-      /*
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      */
-      home: ServerNotFound(title: "Can't find Morra cinese"),
-    );
-  }
-}
-
-class ServerNotFound extends StatefulWidget {
-  ServerNotFound({Key key, this.title}) : super(key: key);
-  final String title;
-
-  @override
-  _ServerNotFoundState createState() => _ServerNotFoundState();
-}
-
-class _ServerNotFoundState extends State<MyHomePage> {
-  String dot = ".";
-  int no = 1;
-  Stream searching;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Row(
-          children: [
-            Text("Connessione al server non riuscita"),
-          ],
-        ),
-      ),
     );
   }
 }
