@@ -4,8 +4,9 @@ import 'package:imagebutton/imagebutton.dart';
 
 Socket _socket;
 
+bool _inGame = false;
+
 void main() {
-  /*
   Socket.connect("127.0.0.1", 3000).then((socket) {
     print('Connected to: '
         '${socket.remoteAddress.address}:${socket.remotePort}');
@@ -14,8 +15,8 @@ void main() {
     socket.destroy();
   }).catchError((e) {
     if (e is SocketException) print('SocketException => $e');
+    runApp(ServerApp());
   });
-  */
   runApp(MyApp());
 }
 
@@ -45,14 +46,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  bool _inGame = true;
   String dot = ".";
+  int no = 1;
   Stream searching;
 
   Stream<int> tick() async* {
     int i = 1;
     do {
-      await Future.delayed(Duration(seconds: 5));
+      await Future.delayed(Duration(seconds: 3));
       yield ++i;
       if (i == 3) i = 1;
     } while (true);
@@ -89,18 +90,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: <Widget>[
                       FlatButton(
                           onPressed: () {
-                            //widget.mySocket.writeln("sasso");
+                            widget.mySocket.writeln("sasso");
                           },
                           //child: Image.asset('immagini/sasso.png')),
                           child: Text("Sasso")),
                       FlatButton(
                           onPressed: () {
-                            //widget.mySocket.writeln("carta");
+                            widget.mySocket.writeln("carta");
                           },
                           child: Text('Carta')),
                       FlatButton(
                           onPressed: () {
-                            //widget.mySocket.writeln("forbice");
+                            widget.mySocket.writeln("forbice");
                           },
                           child: Text('Forbici')),
                       /*
@@ -117,14 +118,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void pointAnimation() {
     setState(() {
-      switch (dot) {
-        case ".":
+      switch (no) {
+        case 1:
+          no++;
           dot = "..";
           break;
-        case "..":
+        case 2:
+          no++;
           dot = "...";
           break;
-        case "...":
+        case 3:
+          no = 1;
           dot = ".";
           break;
       }
@@ -144,6 +148,48 @@ class _MyHomePageState extends State<MyHomePage> {
       onTap: () {
         print('test');
       },
+    );
+  }
+}
+
+class ServerApp extends StatelessWidget {
+  build(BuildContext context) {
+    return MaterialApp(
+      /*
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      */
+      home: ServerNotFound(title: "Can't find Morra cinese"),
+    );
+  }
+}
+
+class ServerNotFound extends StatefulWidget {
+  ServerNotFound({Key key, this.title}) : super(key: key);
+  final String title;
+
+  @override
+  _ServerNotFoundState createState() => _ServerNotFoundState();
+}
+
+class _ServerNotFoundState extends State<MyHomePage> {
+  String dot = ".";
+  int no = 1;
+  Stream searching;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Row(
+          children: [
+            Text("Connessione al server non riuscita"),
+          ],
+        ),
+      ),
     );
   }
 }
