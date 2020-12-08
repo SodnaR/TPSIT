@@ -25,15 +25,28 @@ void handleConnection(Socket client) {
   addChallenger(MorraCinese(client));
 
   client.write("Welcome to Chinese morra challenge");
+  for (List<MorraCinese> room in rooms) {
+    print("${room.toString()}");
+  }
 }
 
 void addChallenger(MorraCinese user) {
-  List<MorraCinese> room = searchInRoom(user);
+  List<MorraCinese> room = emptyRoom();
   if (room == null) {
     rooms.add([user]);
   } else {
     room.add(user);
+    for (MorraCinese challenger in room) {
+      challenger._user.write("joined");
+    }
   }
+}
+
+List<MorraCinese> emptyRoom() {
+  for (List<MorraCinese> room in rooms) {
+    if (room.length < 2) return room;
+  }
+  return null;
 }
 
 /*

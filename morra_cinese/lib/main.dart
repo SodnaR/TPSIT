@@ -3,26 +3,31 @@ import 'package:flutter/material.dart';
 import 'package:imagebutton/imagebutton.dart';
 
 Socket _socket;
-bool _inGame = false;
+bool _inGame = true;
 
 SocketException exception;
 
 void main() {
-//  do {
-    Socket.connect("192.168.1.105", 3000).then((socket) {
-      print('Connected to: '
-          '${socket.remoteAddress.address}:${socket.remotePort}');
-      _socket = socket;
-      runApp(MyApp());
-//      socket.destroy();
-    }).catchError((e) {
-      if (e is SocketException) {
-        print('SocketException => $e');
-        exception = e;
+  Socket.connect("192.168.1.105", 3000).then((socket) {
+    print('Connected to: '
+        '${socket.remoteAddress.address}:${socket.remotePort}');
+    socket.listen((data) {
+      if (identical(new String.fromCharCodes(data).trim(), "joined")) {
+        _inGame = true;
+      } else {
+        _inGame = false;
       }
-      runApp(ServerApp());
     });
-//  } while (exception != null);
+    _socket = socket;
+    runApp(MyApp());
+//      socket.destroy();
+  }).catchError((e) {
+    if (e is SocketException) {
+      print('SocketException => $e');
+      exception = e;
+    }
+    runApp(ServerApp());
+  });
 }
 
 class ServerApp extends StatelessWidget {
@@ -118,8 +123,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    searching = tick();
     if (!_inGame) {
-      searching = tick();
       return Scaffold(
         body: Center(
             child: Row(
