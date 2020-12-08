@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:imagebutton/imagebutton.dart';
+import 'server/server.dart';
 
 Socket _socket;
 bool _inGame = true;
+dynamic points; //da implementare
 
 SocketException exception;
 
@@ -11,16 +13,8 @@ void main() {
   Socket.connect("192.168.1.105", 3000).then((socket) {
     print('Connected to: '
         '${socket.remoteAddress.address}:${socket.remotePort}');
-    socket.listen((data) {
-      if (identical(new String.fromCharCodes(data).trim(), "joined")) {
-        _inGame = true;
-      } else {
-        _inGame = false;
-      }
-    });
     _socket = socket;
     runApp(MyApp());
-//      socket.destroy();
   }).catchError((e) {
     if (e is SocketException) {
       print('SocketException => $e');
@@ -140,33 +134,32 @@ class _MyHomePageState extends State<MyHomePage> {
             title: Text(widget.title),
           ),
           body: Center(
-            child: Row(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                ButtonBar(
-                    alignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      FlatButton(
-                          onPressed: () {
-                            widget.mySocket.writeln("sasso");
-                          },
-                          //child: Image.asset('immagini/sasso.png')),
-                          child: Text("Sasso")),
-                      FlatButton(
-                          onPressed: () {
-                            widget.mySocket.writeln("carta");
-                          },
-                          child: Text('Carta')),
-                      FlatButton(
-                          onPressed: () {
-                            widget.mySocket.writeln("forbice");
-                          },
-                          child: Text('Forbici')),
-                      /*
-                      myButton('./immagini/sasso');
-                      myButton('./immagini/carta');
-                      myButton('./immagini/forbici');
-                      */
-                    ])
+                Row(),//Row for points
+                Row(children: <Widget>[
+                  ButtonBar(
+                      alignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        FlatButton(
+                            onPressed: () {
+                              widget.mySocket.write("sasso");
+                            },
+                            //child: Image.asset('immagini/sasso.png')),
+                            child: Text("Sasso")),
+                        FlatButton(
+                            onPressed: () {
+                              widget.mySocket.write("carta");
+                            },
+                            child: Text('Carta')),
+                        FlatButton(
+                            onPressed: () {
+                              widget.mySocket.write("forbice");
+                            },
+                            child: Text('Forbici')),
+                      ]),
+                ])
               ],
             ),
           ));
