@@ -150,24 +150,24 @@ Lo stateful widget della principale è l'originale di quella prima mostrata, qui
               ),
            ));
       }
-   }
-
-   Widget myButton(String path) {
-      return ImageButton(
-        children: <Widget>[],
-        width: 91,
-       height: 36,
-       paddingTop: 5,
-       pressedImage: Image.asset(
-          "${path}premuta.png",
-       ),
-       unpressedImage: Image.asset("$path.png"),
-       onTap: () {
-         print('test');
-       },
-      );
     }
-  }
+
+    Widget myButton(String path) {
+        return ImageButton(
+          children: <Widget>[],
+          width: 91,
+         height: 36,
+         paddingTop: 5,
+        pressedImage: Image.asset(
+           "${path}premuta.png",
+        ),
+        unpressedImage: Image.asset("$path.png"),
+        onTap: () {
+           print('test');
+        },
+        );
+      }
+    }
 
 Semplicemente mostra a schermo tre bottoni, le scelte nella classica morra, che mandano un evento al server che gestisce le richieste.
 
@@ -176,33 +176,33 @@ Semplicemente mostra a schermo tre bottoni, le scelte nella classica morra, che 
 Il server di base, o meglio la [connessione a tale è stata presa dalla dispensa fornitaci dal professore](https://gitlab.com/divino.marchese/zuccante_src/-/blob/master/dart/io/es006_chatroom_server.dart), che stampa in cmd l'ip e la porta del client che si è connesso e ne gestisce l'arrivo.
 
 
-  void main() {
-   ServerSocket.bind(InternetAddress.anyIPv4, 3000).then((ServerSocket socket) {
-      server = socket;
-      server.listen((client) {
-        handleConnection(client);
-      });
-   });
-  }
+    void main() {
+    ServerSocket.bind(InternetAddress.anyIPv4, 3000).then((ServerSocket socket) {
+        server = socket;
+        server.listen((client) {
+         handleConnection(client);
+       });
+    });
+    }
 
 Il metodo che gestisce il client, poi decidederà di inserirlo in una classe Room ed in una lista che contiene quest'ultime: 
 
-  void handleConnection(Socket client) {
-    print('Connection from '
-       '${client.remoteAddress.address}:${client.remotePort}');
+    void handleConnection(Socket client) {
+      print('Connection from '
+        '${client.remoteAddress.address}:${client.remotePort}');
 
-   addChallenger(MorraCinese(client));
+      addChallenger(MorraCinese(client));
 
-    client.write("Welcome to Chinese morra challenge");
-  }
-
-  void addChallenger(MorraCinese user) {
-    Room room;
-    rooms.isEmpty ? room = new Room() : room = rooms.last;
-    if (!room.addPlayers(user)) {
-      rooms.add(new Room(user));
+      client.write("Welcome to Chinese morra challenge");
     }
-  }
+
+    void addChallenger(MorraCinese user) {
+      Room room;
+      rooms.isEmpty ? room = new Room() : room = rooms.last;
+      if (!room.addPlayers(user)) {
+       rooms.add(new Room(user));
+      }
+    }
 
 Il server però si compone di due classi:
 
