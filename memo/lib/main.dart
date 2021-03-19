@@ -1,4 +1,13 @@
+import 'package:memo/db.dart';
 import 'package:flutter/material.dart';
+
+import 'methods/memo_dao.dart';
+import 'entity/memo.dart';
+
+AppDatabase database;
+MemoDao memoDao;
+List<Memo> memi = <Memo>[];
+String _mail;
 
 void main() {
   runApp(MyApp());
@@ -50,68 +59,151 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  @override
+  void initState() {
+    super.initState();
+    $FloorAppDatabase.databaseBuilder('app_database.db').build().then((db) => {
+          db.memoDao.findAllMemo().then((mm) => setState(() {
+                database = db;
+                memoDao = db.memoDao;
+                memi = mm;
+              }))
+        });
   }
 
+  //all memo of the user
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
+            Expanded(
+                child: ListView.builder(
+                    padding: const EdgeInsets.all(8),
+                    itemCount: memi.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Container(
+                        height: 50,
+                        margin: EdgeInsets.all(2),
+                        color: Colors.red[100],
+                        child: Center(
+                            child: Text(
+                          '${memi[index].title}',
+                          style: TextStyle(fontSize: 18),
+                        )),
+                      );
+                    })),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+          tooltip: 'Add a memo',
+          child: Icon(Icons.add),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => NewMemo()),
+            );
+          }),
     );
+  }
+}
+
+//new page for the creation of the new memo
+class NewMemo extends StatelessWidget {
+  final titleController = TextEditingController();
+  final inputController = TextEditingController();
+  final anchorController = TextEditingController();
+
+  //add an element in the database
+  void _addMemo(String anchor) {
+    Memo memo = new Memo(titleController.text, inputController.text, anchor);
+    memoDao.insertMemo(memo);
+    memi.add(memo);
+  }
+
+  //Visual anchor adder
+  Future<void> _displayTextInputDialog(BuildContext context) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: TextField(
+              controller: anchorController,
+              decoration: InputDecoration(hintText: "#memo"),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                  color: Colors.green,
+                  textColor: Colors.white,
+                  child: Text('Share'),
+                  onPressed: () {
+                    _addMemo(anchorController.text);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => MyHomePage(
+                                title: "Memo browser",
+                              )),
+                    );
+                  }),
+            ],
+          );
+        });
+  }
+
+  //Visual note
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: new Column(
+        children: <Widget>[
+          new Row(children: <Widget>[
+            new Flexible(
+              child: new TextField(
+                controller: titleController,
+                decoration: const InputDecoration(hintText: "Title"),
+                style: Theme.of(context).textTheme.body1,
+              ),
+            ),
+            TextButton(
+                child: Text("Salva"),
+                onPressed: () {
+                  if (inputController.text.isEmpty &&
+                      titleController.text.isEmpty) {
+                    Navigator.pop(context);
+                  } else {
+                    _displayTextInputDialog(context);
+                  }
+                })
+          ]),
+          Expanded(
+              child: TextField(
+            controller: inputController,
+            scrollPadding: EdgeInsets.all(20.0),
+            maxLines: 26,
+            autofocus: true,
+          ))
+        ],
+      ),
+    );
+  }
+}
+
+class _loginState extends StatelessWidget {
+  final emailController = TextEditingController();
+  final pswController = TextEditingController();
+
+  String _psw;
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    throw UnimplementedError();
   }
 }

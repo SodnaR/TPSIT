@@ -95,27 +95,45 @@ class _$AppDatabase extends AppDatabase {
 }
 
 class _$MemoDao extends MemoDao {
-  _$MemoDao(this.database, this.changeListener);
+  _$MemoDao(this.database, this.changeListener)
+      : _queryAdapter = QueryAdapter(database, changeListener),
+        _memoInsertionAdapter = InsertionAdapter(
+            database,
+            'Memo',
+            (Memo item) => <String, dynamic>{
+                  'title': item.title,
+                  'field': item.field,
+                  'anchor': item.anchor
+                },
+            changeListener);
 
   final sqflite.DatabaseExecutor database;
 
   final StreamController<String> changeListener;
 
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Memo> _memoInsertionAdapter;
+
   @override
   Future<List<Memo>> findAllMemo() {
-    // TODO: implement findAllMemo
-    throw UnimplementedError();
+    return _queryAdapter.queryList('SELECT * FROM Memo',
+        mapper: (Map<String, dynamic> row) => Memo(row['title'] as String,
+            row['field'] as String, row['anchor'] as String));
   }
 
   @override
-  Stream<Memo> findMemoById(int id) {
-    // TODO: implement findMemoById
-    throw UnimplementedError();
+  Stream<Memo> findMemoByAnchor(String anchor) {
+    return _queryAdapter.queryStream('SELECT * FROM Memo WHERE anchor = ?',
+        arguments: <dynamic>[anchor],
+        queryableName: 'Memo',
+        isView: false,
+        mapper: (Map<String, dynamic> row) => Memo(row['title'] as String,
+            row['field'] as String, row['anchor'] as String));
   }
 
   @override
-  Future<void> insertMemo(Memo memo) {
-    // TODO: implement insertMemo
-    throw UnimplementedError();
+  Future<void> insertMemo(Memo memo) async {
+    await _memoInsertionAdapter.insert(memo, OnConflictStrategy.abort);
   }
 }
