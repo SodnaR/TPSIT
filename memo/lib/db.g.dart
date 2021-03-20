@@ -101,11 +101,23 @@ class _$MemoDao extends MemoDao {
             database,
             'Memo',
             (Memo item) => <String, dynamic>{
+                  'id': item.id,
                   'title': item.title,
                   'field': item.field,
                   'anchor': item.anchor
                 },
-            changeListener);
+            changeListener),
+        _memoUpdaterAdapter = UpdateAdapter(
+          database,
+          'Memo',
+          ['id', 'title', 'field', 'anchor'],
+          (Memo item) => <String, dynamic>{
+            'id': item.id,
+            'title': item.title,
+            'field': item.field,
+            'anchor': item.anchor
+          },
+        );
 
   final sqflite.DatabaseExecutor database;
 
@@ -115,11 +127,29 @@ class _$MemoDao extends MemoDao {
 
   final InsertionAdapter<Memo> _memoInsertionAdapter;
 
+  final UpdateAdapter<Memo> _memoUpdaterAdapter;
+
   @override
   Future<List<Memo>> findAllMemo() {
     return _queryAdapter.queryList('SELECT * FROM Memo',
-        mapper: (Map<String, dynamic> row) => Memo(row['title'] as String,
-            row['field'] as String, row['anchor'] as String));
+        mapper: (Map<String, dynamic> row) => Memo(
+            row['id'] as int,
+            row['title'] as String,
+            row['field'] as String,
+            row['anchor'] as String));
+  }
+
+  @override
+  Stream<Memo> findMemoById(int id) {
+    return _queryAdapter.queryStream('SELECT * FROM Memo WHERE anchor = ?',
+        arguments: <dynamic>[id],
+        queryableName: 'Memo',
+        isView: false,
+        mapper: (Map<String, dynamic> row) => Memo(
+            row['id'] as int,
+            row['title'] as String,
+            row['field'] as String,
+            row['anchor'] as String));
   }
 
   @override
@@ -128,12 +158,47 @@ class _$MemoDao extends MemoDao {
         arguments: <dynamic>[anchor],
         queryableName: 'Memo',
         isView: false,
-        mapper: (Map<String, dynamic> row) => Memo(row['title'] as String,
-            row['field'] as String, row['anchor'] as String));
+        mapper: (Map<String, dynamic> row) => Memo(
+            row['id'] as int,
+            row['title'] as String,
+            row['field'] as String,
+            row['anchor'] as String));
   }
 
   @override
   Future<void> insertMemo(Memo memo) async {
     await _memoInsertionAdapter.insert(memo, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> modifyMemo(Memo memo, Memo exMemo) async {
+    await _memoUpdaterAdapter.update(memo, OnConflictStrategy.replace);
+  }
+
+/*
+  @override
+  Stream<Memo> findMemoByTitle(String title) {
+    final query = _queryAdapter.queryStream(
+        'SELECT * FROM Memo WHERE title = ?',
+        arguments: <dynamic>[title],
+        queryableName: 'Memo',
+        isView: false,
+        mapper: (Map<String, dynamic> row) => Memo(
+            row['id'] as int,
+            row['title'] as String,
+            row['field'] as String,
+            row['anchor'] as String));
+    return query;
+  }*/
+  @override
+  Future<List<Memo>> findMemoByTitle(String title) {
+    final query = _queryAdapter.queryList('SELECT * FROM Memo WHERE title = ?',
+        arguments: <dynamic>[title],
+        mapper: (Map<String, dynamic> row) => Memo(
+            row['id'] as int,
+            row['title'] as String,
+            row['field'] as String,
+            row['anchor'] as String));
+    return query;
   }
 }

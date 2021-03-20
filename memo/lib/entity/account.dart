@@ -7,4 +7,4 @@ class Account {
   final String password;
 
   Account(this.mail, this.password);
-}
+} //just a trial

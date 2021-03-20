@@ -1,13 +1,19 @@
+import 'dart:async';
+
 import 'package:memo/db.dart';
 import 'package:flutter/material.dart';
 
 import 'methods/memo_dao.dart';
 import 'entity/memo.dart';
+import 'logIn.dart';
 
 AppDatabase database;
 MemoDao memoDao;
-List<Memo> memi = <Memo>[];
-String _mail;
+List<Memo> memi = <Memo>[], research = <Memo>[];
+
+Memo modify;
+int memoId;
+TextEditingController searchController = TextEditingController();
 
 void main() {
   runApp(MyApp());
@@ -35,7 +41,7 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: LogIn(),
     );
   }
 }
@@ -59,6 +65,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  BuildContext buildC;
+
   @override
   void initState() {
     super.initState();
@@ -71,13 +79,82 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
+  Future<void> findRows() async {
+    database.memoDao.findMemoByTitle(searchController.text).then((data) {
+      setState(() {
+        research = data;
+      });
+    });
+  }
+
   //all memo of the user
   @override
   Widget build(BuildContext context) {
+    if (searchController.text.isEmpty)
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Expanded(
+                  child: ListView.builder(
+                      padding: const EdgeInsets.all(8),
+                      itemCount: memi.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        print(index);
+                        return Container(
+                          height: 50,
+                          margin: EdgeInsets.all(2),
+                          color: Colors.deepOrange[300],
+                          child: Center(
+                              child: TextButton(
+                            onPressed: () {
+                              modify = memi[index];
+                              print(modify.id);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => AlterMemo()),
+                              );
+                            },
+                            child: Text('${memi[index].title}',
+                                style: TextStyle(fontSize: 18)),
+                          )),
+                        );
+                      })),
+              Spacer(),
+              TextField(
+                controller: searchController,
+                decoration: const InputDecoration(hintText: "Research"),
+              ),
+              IconButton(
+                  icon: Icon(Icons.zoom_out),
+                  onPressed: () {
+                    findRows();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => MyHomePage()),
+                    );
+                  })
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+            tooltip: 'Add a memo',
+            child: Icon(Icons.add),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NewMemo()),
+              );
+            }),
+      );
+    else
+      return researchForTitle(context);
+  }
+
+  Scaffold researchForTitle(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -85,19 +162,43 @@ class _MyHomePageState extends State<MyHomePage> {
             Expanded(
                 child: ListView.builder(
                     padding: const EdgeInsets.all(8),
-                    itemCount: memi.length,
+                    itemCount: research.length,
                     itemBuilder: (BuildContext context, int index) {
+                      print(index);
                       return Container(
                         height: 50,
                         margin: EdgeInsets.all(2),
-                        color: Colors.red[100],
+                        color: Colors.deepOrange[300],
                         child: Center(
-                            child: Text(
-                          '${memi[index].title}',
-                          style: TextStyle(fontSize: 18),
+                            child: TextButton(
+                          onPressed: () {
+                            modify = research[index];
+                            memoId = index;
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AlterMemo()),
+                            );
+                          },
+                          child: Text('${research[index].title}',
+                              style: TextStyle(fontSize: 18)),
                         )),
                       );
                     })),
+            Spacer(),
+            TextFormField(
+              controller: searchController,
+              decoration: const InputDecoration(hintText: "Research"),
+            ),
+            IconButton(
+                icon: Icon(Icons.zoom_out),
+                onPressed: () {
+                  findRows();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyHomePage()),
+                  );
+                })
           ],
         ),
       ),
@@ -122,7 +223,8 @@ class NewMemo extends StatelessWidget {
 
   //add an element in the database
   void _addMemo(String anchor) {
-    Memo memo = new Memo(titleController.text, inputController.text, anchor);
+    Memo memo = new Memo(
+        ++memi.length, titleController.text, inputController.text, anchor);
     memoDao.insertMemo(memo);
     memi.add(memo);
   }
@@ -165,7 +267,7 @@ class NewMemo extends StatelessWidget {
         children: <Widget>[
           new Row(children: <Widget>[
             new Flexible(
-              child: new TextField(
+              child: new TextFormField(
                 controller: titleController,
                 decoration: const InputDecoration(hintText: "Title"),
                 style: Theme.of(context).textTheme.body1,
@@ -195,15 +297,85 @@ class NewMemo extends StatelessWidget {
   }
 }
 
-class _loginState extends StatelessWidget {
-  final emailController = TextEditingController();
-  final pswController = TextEditingController();
+//new page for the creation of the new memo
+class AlterMemo extends StatelessWidget {
+  final titleController = TextEditingController(text: modify.title);
+  final inputController = TextEditingController(text: modify.field);
+  final anchorController = TextEditingController(text: modify.anchor);
 
-  String _psw;
+  //add an element in the database
+  void _modifyMemo(String anchor) {
+    Memo old = modify;
+    modify.title = titleController.text;
+    modify.field = inputController.text;
+    modify.anchor = anchor;
+    database.memoDao.modifyMemo(modify, old);
+  }
 
+  //Visual anchor adder
+  Future<void> _displayTextInputDialog(BuildContext context) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: TextFormField(
+              controller: anchorController,
+              decoration: InputDecoration(hintText: "#memo"),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                  color: Colors.green,
+                  textColor: Colors.white,
+                  child: Text('Share'),
+                  onPressed: () {
+                    _modifyMemo(anchorController.text);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => MyHomePage(
+                                title: "Memo browser",
+                              )),
+                    );
+                  }),
+            ],
+          );
+        });
+  }
+
+  //Visual note
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
+    return Scaffold(
+      body: new Column(
+        children: <Widget>[
+          new Row(children: <Widget>[
+            new Flexible(
+              child: new TextFormField(
+                controller: titleController,
+                decoration: const InputDecoration(hintText: "_title"),
+                style: Theme.of(context).textTheme.body1,
+              ),
+            ),
+            TextButton(
+                child: Text("Salva"),
+                onPressed: () {
+                  if (inputController.text.isEmpty &&
+                      titleController.text.isEmpty) {
+                    Navigator.pop(context);
+                  } else {
+                    _displayTextInputDialog(context);
+                  }
+                })
+          ]),
+          Expanded(
+              child: TextFormField(
+            controller: inputController,
+            scrollPadding: EdgeInsets.all(20.0),
+            maxLines: 26,
+            autofocus: true,
+          ))
+        ],
+      ),
+    );
   }
 }
