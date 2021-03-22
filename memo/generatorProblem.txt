@@ -107,28 +107,17 @@ class _$MemoDao extends MemoDao {
                   'anchor': item.anchor
                 },
             changeListener),
-        _memoUpdateAdapter = UpdateAdapter(
-            database,
-            'Memo',
-            ['id'],
-            (Memo item) => <String, dynamic>{
-                  'id': item.id,
-                  'title': item.title,
-                  'field': item.field,
-                  'anchor': item.anchor
-                },
-            changeListener),
-        _memoDeletionAdapter = DeletionAdapter(
-            database,
-            'Memo',
-            ['id'],
-            (Memo item) => <String, dynamic>{
-                  'id': item.id,
-                  'title': item.title,
-                  'field': item.field,
-                  'anchor': item.anchor
-                },
-            changeListener);
+        _memoUpdaterAdapter = UpdateAdapter(
+          database,
+          'Memo',
+          ['id', 'title', 'field', 'anchor'],
+          (Memo item) => <String, dynamic>{
+            'id': item.id,
+            'title': item.title,
+            'field': item.field,
+            'anchor': item.anchor
+          },
+        );
 
   final sqflite.DatabaseExecutor database;
 
@@ -138,9 +127,7 @@ class _$MemoDao extends MemoDao {
 
   final InsertionAdapter<Memo> _memoInsertionAdapter;
 
-  final UpdateAdapter<Memo> _memoUpdateAdapter;
-
-  final DeletionAdapter<Memo> _memoDeletionAdapter;
+  final UpdateAdapter<Memo> _memoUpdaterAdapter;
 
   @override
   Future<List<Memo>> findAllMemo() {
@@ -153,9 +140,42 @@ class _$MemoDao extends MemoDao {
   }
 
   @override
-  Future<List<Memo>> findMemoById(int id) {
-    return _queryAdapter.queryList('SELECT * FROM Memo WHERE anchor = ?',
+  Stream<Memo> findMemoById(int id) {
+    return _queryAdapter.queryStream('SELECT * FROM Memo WHERE anchor = ?',
         arguments: <dynamic>[id],
+        queryableName: 'Memo',
+        isView: false,
+        mapper: (Map<String, dynamic> row) => Memo(
+            row['id'] as int,
+            row['title'] as String,
+            row['field'] as String,
+            row['anchor'] as String));
+  }
+
+  @override
+  Stream<Memo> findMemoByAnchor(String anchor) {
+    return _queryAdapter.queryStream('SELECT * FROM Memo WHERE anchor = ?',
+        arguments: <dynamic>[anchor],
+        queryableName: 'Memo',
+        isView: false,
+        mapper: (Map<String, dynamic> row) => Memo(
+            row['id'] as int,
+            row['title'] as String,
+            row['field'] as String,
+            row['anchor'] as String));
+  }
+
+  @override
+  Future<void> insertMemo(Memo memo) async {
+    try {
+      await _memoInsertionAdapter.insert(memo, OnConflictStrategy.abort);
+    } catch (Exception) {}
+  }
+
+  @override
+  Future<void> modifyMemo(Memo memo, Memo exMemo) async {
+    await _queryAdapter.query(
+        'UPDATE Memo SET title = ${memo.title}, field = ${memo.field}, anchor=${memo.anchor} WHERE title = ? AND field = ? AND anchor = ?',
         mapper: (Map<String, dynamic> row) => Memo(
             row['id'] as int,
             row['title'] as String,
@@ -176,36 +196,12 @@ class _$MemoDao extends MemoDao {
   }
 
   @override
-  Future<List<Memo>> findMemoByAnchor(String anchor) {
-    return _queryAdapter.queryList('SELECT * FROM Memo WHERE anchor = ?',
-        arguments: <dynamic>[anchor],
-        mapper: (Map<String, dynamic> row) => Memo(
-            row['id'] as int,
-            row['title'] as String,
-            row['field'] as String,
-            row['anchor'] as String));
+  Future<void> deleteById(int id) async {
+    await _queryAdapter.queryNoReturn('DELETE FROM Memo WHERE id = $id');
   }
 
   @override
-  Future<void> modifyMemo(Memo memo) async {
-    await _memoUpdateAdapter.update(memo, OnConflictStrategy.replace);
-  }
-
-  @override
-  Future<void> insertMemo(Memo memo) async {
-    try {
-      await _memoInsertionAdapter.insert(memo, OnConflictStrategy.abort);
-    } catch (Exception) {}
-  }
-
-  @override
-  Future<void> deleteMemo(Memo memo) async {
-    await _memoDeletionAdapter.delete(memo);
-  }
-
-  @override
-  Future<void> deleteAllMemo() {
-    // TODO: implement deleteAllMemo
-    throw UnimplementedError();
+  Future<void> deleteAll() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM Memo');
   }
 }

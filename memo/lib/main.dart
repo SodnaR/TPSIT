@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:memo/db.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import 'methods/memo_dao.dart';
 import 'entity/memo.dart';
@@ -14,6 +17,9 @@ List<Memo> memi = <Memo>[], research = <Memo>[];
 Memo modify;
 int memoId;
 TextEditingController searchController = TextEditingController();
+
+File jsonFile =
+    File('D:/schoolSubject/TIPSIT/TPSIT/memo/lib/assets/memo_copy.json');
 
 void main() {
   runApp(MyApp());
@@ -66,10 +72,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   BuildContext buildC;
+  Future<List<Memo>> futureMemo;
 
   @override
   void initState() {
     super.initState();
+    futureMemo = fetchMemi();
     $FloorAppDatabase.databaseBuilder('app_database.db').build().then((db) => {
           db.memoDao.findAllMemo().then((mm) => setState(() {
                 database = db;
@@ -87,9 +95,28 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Future<List<Memo>> fetchMemi() async {
+    var response = await http.get(Uri.http('10.0.2.2:3000', '/Memo'));
+    var responseMemi = json.decode(response.body) as List;
+    if (response.statusCode == 200) {
+      return responseMemi.map((e) => Memo.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to load memo');
+    }
+  }
+
+  void _upToDate() async {
+    futureMemo.then((memi) {
+      memi.forEach((element) {
+        database.memoDao.insertMemo(element);
+      });
+    });
+  }
+
   //all memo of the user
   @override
   Widget build(BuildContext context) {
+    _upToDate();
     if (searchController.text.isEmpty)
       return Scaffold(
         body: Center(
@@ -101,7 +128,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       padding: const EdgeInsets.all(8),
                       itemCount: memi.length,
                       itemBuilder: (BuildContext context, int index) {
-                        print(index);
                         return Container(
                           height: 50,
                           margin: EdgeInsets.all(2),
@@ -110,15 +136,29 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: TextButton(
                             onPressed: () {
                               modify = memi[index];
-                              print(modify.id);
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => AlterMemo()),
                               );
                             },
-                            child: Text('${memi[index].title}',
-                                style: TextStyle(fontSize: 18)),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Text('${memi[index].title}',
+                                    style: TextStyle(fontSize: 18)),
+                                IconButton(
+                                    icon: Icon(Icons.delete),
+                                    onPressed: () {
+                                      database.memoDao.deleteMemo(memi[index]);
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  MyHomePage()));
+                                    })
+                              ],
+                            ),
                           )),
                         );
                       })),
@@ -164,7 +204,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     padding: const EdgeInsets.all(8),
                     itemCount: research.length,
                     itemBuilder: (BuildContext context, int index) {
-                      print(index);
                       return Container(
                         height: 50,
                         margin: EdgeInsets.all(2),
@@ -222,11 +261,27 @@ class NewMemo extends StatelessWidget {
   final anchorController = TextEditingController();
 
   //add an element in the database
-  void _addMemo(String anchor) {
+  void _addMemo(String anchor) async {
     Memo memo = new Memo(
         ++memi.length, titleController.text, inputController.text, anchor);
     memoDao.insertMemo(memo);
-    memi.add(memo);
+    var response = await http.post(
+      Uri.http('10.0.2.2:3000', '/Memo/${memo.id}'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'id': memo.id,
+        'title': memo.title,
+        'field': memo.field,
+        'anchor': memo.anchor,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      print(response.body + " " + response.statusCode.toString());
+      throw Exception('Failed to update memo.');
+    }
   }
 
   //Visual anchor adder
@@ -240,6 +295,7 @@ class NewMemo extends StatelessWidget {
               decoration: InputDecoration(hintText: "#memo"),
             ),
             actions: <Widget>[
+              // ignore: deprecated_member_use
               FlatButton(
                   color: Colors.green,
                   textColor: Colors.white,
@@ -270,6 +326,7 @@ class NewMemo extends StatelessWidget {
               child: new TextFormField(
                 controller: titleController,
                 decoration: const InputDecoration(hintText: "Title"),
+                // ignore: deprecated_member_use
                 style: Theme.of(context).textTheme.body1,
               ),
             ),
@@ -304,12 +361,30 @@ class AlterMemo extends StatelessWidget {
   final anchorController = TextEditingController(text: modify.anchor);
 
   //add an element in the database
-  void _modifyMemo(String anchor) {
-    Memo old = modify;
-    modify.title = titleController.text;
-    modify.field = inputController.text;
-    modify.anchor = anchor;
-    database.memoDao.modifyMemo(modify, old);
+  Future<Memo> _modifyMemo(String anchor) async {
+    var response = await http.put(
+      'http://10.0.2.2:3000/Memo/${modify.id}',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'id': modify.id,
+        'title': modify.title,
+        'field': modify.field,
+        'anchor': modify.anchor,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      return Memo.fromJson(jsonDecode(response.body));
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      print(response.body + " " + response.statusCode.toString());
+      throw Exception('Failed to update memo.');
+    }
   }
 
   //Visual anchor adder
@@ -323,6 +398,7 @@ class AlterMemo extends StatelessWidget {
               decoration: InputDecoration(hintText: "#memo"),
             ),
             actions: <Widget>[
+              // ignore: deprecated_member_use
               FlatButton(
                   color: Colors.green,
                   textColor: Colors.white,
@@ -353,6 +429,7 @@ class AlterMemo extends StatelessWidget {
               child: new TextFormField(
                 controller: titleController,
                 decoration: const InputDecoration(hintText: "_title"),
+                // ignore: deprecated_member_use
                 style: Theme.of(context).textTheme.body1,
               ),
             ),

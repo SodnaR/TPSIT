@@ -85,8 +85,10 @@ class _LogInState extends State<LogIn> {
             TextFormField(
               controller: mailLogger,
               decoration: const InputDecoration(),
+              // ignore: deprecated_member_use
               style: Theme.of(context).textTheme.body1,
             ),
+            // ignore: deprecated_member_use
             RaisedButton(
               onPressed: _checkMail,
               child: Text('Log in'),
@@ -105,8 +107,10 @@ class _LogInState extends State<LogIn> {
             TextFormField(
               controller: mailLogger,
               decoration: const InputDecoration(hintText: "username"),
+              // ignore: deprecated_member_use
               style: Theme.of(context).textTheme.body1,
             ),
+            // ignore: deprecated_member_use
             RaisedButton(
               onPressed: _checkMail,
               child: Text('Log in'),
