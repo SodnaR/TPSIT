@@ -266,7 +266,7 @@ class NewMemo extends StatelessWidget {
         ++memi.length, titleController.text, inputController.text, anchor);
     memoDao.insertMemo(memo);
     var response = await http.post(
-      Uri.http('10.0.2.2:3000', '/Memo/${memo.id}'),
+      Uri.http('10.0.2.2:3000', '/Memo'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -278,7 +278,7 @@ class NewMemo extends StatelessWidget {
       }),
     );
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 201) {
       print(response.body + " " + response.statusCode.toString());
       throw Exception('Failed to update memo.');
     }
