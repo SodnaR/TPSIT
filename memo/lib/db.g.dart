@@ -147,6 +147,7 @@ class _$MemoDao extends MemoDao {
     return _queryAdapter.queryList('SELECT * FROM Memo',
         mapper: (Map<String, dynamic> row) => Memo(
             row['id'] as int,
+            row['user'] as String,
             row['title'] as String,
             row['field'] as String,
             row['anchor'] as String));
@@ -158,6 +159,7 @@ class _$MemoDao extends MemoDao {
         arguments: <dynamic>[id],
         mapper: (Map<String, dynamic> row) => Memo(
             row['id'] as int,
+            row['user'] as String,
             row['title'] as String,
             row['field'] as String,
             row['anchor'] as String));
@@ -169,6 +171,7 @@ class _$MemoDao extends MemoDao {
         arguments: <dynamic>[title],
         mapper: (Map<String, dynamic> row) => Memo(
             row['id'] as int,
+            row['user'] as String,
             row['title'] as String,
             row['field'] as String,
             row['anchor'] as String));
@@ -181,6 +184,7 @@ class _$MemoDao extends MemoDao {
         arguments: <dynamic>[anchor],
         mapper: (Map<String, dynamic> row) => Memo(
             row['id'] as int,
+            row['user'] as String,
             row['title'] as String,
             row['field'] as String,
             row['anchor'] as String));
@@ -204,8 +208,7 @@ class _$MemoDao extends MemoDao {
   }
 
   @override
-  Future<void> deleteAllMemo() {
-    // TODO: implement deleteAllMemo
-    throw UnimplementedError();
+  Future<void> deleteAllMemo() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM Memo');
   }
 }

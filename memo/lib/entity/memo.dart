@@ -1,15 +1,15 @@
 import 'package:floor/floor.dart';
-import 'package:flutter/cupertino.dart';
 
 @entity
 class Memo {
   @primaryKey
   int id;
+  String user;
   String title;
   String field;
   String anchor;
 
-  Memo(this.id, this.title, this.field, this.anchor);
+  Memo(this.id, this.user, this.title, this.field, this.anchor);
 
   bool compare(Memo other) {
     return (other.title == title &&
@@ -19,6 +19,7 @@ class Memo {
 
   Memo.fromJson(Map<String, dynamic> json) {
     id = json['id'];
+    user = json['user'];
     title = json['title'];
     field = json['field'];
     anchor = json['anchor'];
@@ -27,6 +28,7 @@ class Memo {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
+    data['user'] = this.user;
     data['title'] = this.title;
     data['field'] = this.field;
     data['anchor'] = this.anchor;

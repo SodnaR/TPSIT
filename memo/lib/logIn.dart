@@ -24,12 +24,13 @@ class _LogInState extends State<LogIn> {
     _getPreferences.then((data) {
       setState(() {
         this.prefs = data;
+        _logged();
       });
     });
   }
 
   Future get _getPreferences async {
-    prefs = await SharedPreferences.getInstance();
+    return SharedPreferences.getInstance();
   }
 
   void _logged() {
@@ -49,57 +50,13 @@ class _LogInState extends State<LogIn> {
       context,
       MaterialPageRoute(
           builder: (context) => MyHomePage(
-                title: "Memo browser",
+                title: _mail,
               )),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (prefs == null) {
-      _getPreferences;
-    }
-
-    /*All WIP always login
-    _logged();
-    if (logging) {
-      /*
-      //WIP da aggiungere quando gli account potranno essere univoci
-      print('logged');
-      return alreadyLog;
-      */
-      
-    } else {
-      print('notLogged');
-      return doLog;
-    }
-    */
-    return doLog;
-  }
-
-  Scaffold get alreadyLog {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          children: <Widget>[
-            TextFormField(
-              controller: mailLogger,
-              decoration: const InputDecoration(),
-              // ignore: deprecated_member_use
-              style: Theme.of(context).textTheme.body1,
-            ),
-            // ignore: deprecated_member_use
-            RaisedButton(
-              onPressed: _checkMail,
-              child: Text('Log in'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Scaffold get doLog {
     return Scaffold(
       body: Center(
         child: Column(
