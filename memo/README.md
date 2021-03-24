@@ -4,9 +4,9 @@
 
 Used languages:
 
-##   - Flutter ○ # client view
-##   - Dart ○ # class control and data manage
-##   - Json ○ # server json
+##   - Flutter ○ client view
+##   - Dart ○ class control and data manage
+##   - Json ○ server json
 
 This application is divided in 3 parts, all interrelated each other.
 
