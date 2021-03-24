@@ -421,7 +421,7 @@ class AlterMemo extends StatelessWidget {
   final inputController = TextEditingController(text: modify.field);
   final anchorController = TextEditingController(text: modify.anchor);
 
-  //add an element in the database
+  //modify an element in the database
   void _modifyMemo(String anchor) async {
     modify.user = _mail;
     modify.title = titleController.text;
