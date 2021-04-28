@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 //Custom package
 import 'package:prenotazioni/pages/homepage.dart';
 import 'package:prenotazioni/pages/login.dart';
+import 'prenotationCalendar/relaxCalendar.dart';
 
 void main() {
   runApp(MyApp());
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: Login(),
+      home: TableBasicsExample(),
     );
   }
 }
