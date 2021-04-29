@@ -33,26 +33,21 @@ class Utenti {
   List<Utente> utenti;
 
   Utenti() {
-    futureUtenti = fetchUtenti();
-    _updateUtenti();
-    utenti = List.empty();
+    utenti = [];
+    _setUsers();
   }
 
   Future<List<Utente>> fetchUtenti() async {
-    var response = await http.get(Uri.http('10.0.2.2:3000', '/Aula'));
-    var stanze = json.decode(response.body) as List;
+    var response = await http.get(Uri.http('10.0.2.2:3000', '/Utente'));
+    var users = json.decode(response.body) as List;
     if (response.statusCode == 200) {
-      return stanze.map((e) => Utente.fromJson(e)).toList();
+      return users.map((e) => Utente.fromJson(e)).toList();
     } else {
       throw Exception('Failed to load memo');
     }
   }
 
-  void _updateUtenti() async {
-    futureUtenti.then((aule) {
-      aule.forEach((element) {
-        utenti.add(element);
-      });
-    });
+  void _setUsers() async {
+    utenti.addAll(await fetchUtenti());
   }
 }
