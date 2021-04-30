@@ -160,13 +160,23 @@ class _$PrenotationDao extends PrenotationDao {
 
   @override
   Future<void> deleteAllPrenotation() async {
-    await _queryAdapter.queryNoReturn('DELETE FROM Memo');
+    await _queryAdapter.queryNoReturn('DELETE FROM Prenotation');
   }
 
   @override
   Future<List<Prenotation>> findPrenotationByUser(String username) {
-    return _queryAdapter.queryList('SELECT * FROM Memo WHERE anchor = ?',
+    return _queryAdapter.queryList('SELECT * FROM Prenotation WHERE anchor = ?',
         arguments: <dynamic>[username],
+        mapper: (Map<String, dynamic> row) => Prenotation(
+            row['codP'] as int,
+            row['idAula'] as int,
+            row['time'] as String,
+            row['username'] as String));
+  }
+
+  @override
+  Future<List<Prenotation>> findAllPrenotation() {
+    return _queryAdapter.queryList('SELECT * FROM Prenotation',
         mapper: (Map<String, dynamic> row) => Prenotation(
             row['codP'] as int,
             row['idAula'] as int,

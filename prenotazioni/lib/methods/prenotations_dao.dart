@@ -3,6 +3,9 @@ import 'package:floor/floor.dart';
 
 @dao
 abstract class PrenotationDao {
+  @Query('SELECT * FROM Prenotation')
+  Future<List<Prenotation>> findAllPrenotation();
+
   @Query('SELECT * FROM Prenotation WHERE username = :username')
   Future<List<Prenotation>> findPrenotationByUser(String username);
 

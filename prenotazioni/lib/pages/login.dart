@@ -1,9 +1,12 @@
+import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:prenotazioni/pages/homepage.dart';
 import 'package:prenotazioni/data/utenti.dart';
 import 'package:prenotazioni/main.dart' as user_import;
+
+final username = userCubit("");
 
 class Login extends StatefulWidget {
   Login({Key key}) : super(key: key);
@@ -31,6 +34,9 @@ class _LoginState extends State<Login> {
       if (user.email.compareTo(emailController.text) == 0) {
         if (user.password.compareTo(pswController.text) == 0) {
           _return = true;
+          setState(() {
+            username.nickname(user.username);
+          });
         }
       }
     });
@@ -39,11 +45,6 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    /*
-    users.forEach((element) {
-      print(element.email);
-    });
-    */
     return Scaffold(
         body: Padding(
       padding: EdgeInsets.all(15.0),
@@ -99,5 +100,24 @@ class _LoginState extends State<Login> {
         ],
       ),
     ));
+  }
+}
+
+// ignore: camel_case_types
+class userCubit extends Cubit<String> {
+  userCubit(String initialState) : super(initialState);
+
+  void nickname(String username) => emit(username);
+
+  @override
+  void onChange(Change<String> change) {
+    super.onChange(change);
+    print(change);
+  }
+
+  @override
+  void onError(Object error, StackTrace stackTrace) {
+    print('$error, $stackTrace');
+    super.onError(error, stackTrace);
   }
 }

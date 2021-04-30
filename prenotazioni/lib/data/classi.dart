@@ -34,9 +34,8 @@ class Aule {
   List<Aula> stanze;
 
   Aule() {
-    futureAule = fetchAule();
-    _updateAule();
-    stanze = List.empty();
+    stanze = [];
+    _setAule();
   }
 
   Future<List<Aula>> fetchAule() async {
@@ -49,11 +48,7 @@ class Aule {
     }
   }
 
-  void _updateAule() async {
-    futureAule.then((aule) {
-      aule.forEach((element) {
-        stanze.add(element);
-      });
-    });
+  void _setAule() async {
+    stanze.addAll(await fetchAule());
   }
 }
