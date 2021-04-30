@@ -48,7 +48,10 @@ class _HomepageState extends State<Homepage> {
     return Container(
       height: 50,
       margin: EdgeInsets.all(12.5),
-      color: Colors.deepOrange[300],
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.deepOrange[300],
+      ),
       child: Center(
           child: TextButton(
         onPressed: () {
@@ -69,7 +72,10 @@ class _HomepageState extends State<Homepage> {
     return Container(
       height: 50,
       margin: EdgeInsets.all(12.5),
-      color: Colors.deepOrange[300],
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.deepOrange[300],
+      ),
       child: Center(
           child: TextButton(
         onPressed: () {},
