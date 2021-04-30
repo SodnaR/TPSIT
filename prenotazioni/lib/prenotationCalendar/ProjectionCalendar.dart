@@ -5,15 +5,15 @@ import 'package:table_calendar/table_calendar.dart';
 
 import 'package:prenotazioni/main.dart' as prenotation_import;
 
-final int _stanza = 9;
-final relax = relaxCubit([]);
+final int _stanza = 7;
+final projection = projectionCubit([]);
 
-class RelaxCalendar extends StatefulWidget {
+class ProjectionCalendar extends StatefulWidget {
   @override
-  _RelaxCalendarState createState() => _RelaxCalendarState();
+  _ProjectionCalendarState createState() => _ProjectionCalendarState();
 }
 
-class _RelaxCalendarState extends State<RelaxCalendar> {
+class _ProjectionCalendarState extends State<ProjectionCalendar> {
   CalendarController _controller;
   TextEditingController _eventController;
 
@@ -33,7 +33,7 @@ class _RelaxCalendarState extends State<RelaxCalendar> {
     prenotazione =
         prenotation_import.prenotazioni.onlinePrenotation[(_stanza - 7)];
     final List<Time> events = prenotazione.date;
-    relax.relax(events);
+    projection.projection(events);
 
     _events = Map.fromIterable(events,
         key: (e) => e.getDateTime(),
@@ -66,20 +66,24 @@ class _RelaxCalendarState extends State<RelaxCalendar> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         // automaticallyImplyLeading: false,
         backgroundColor: Colors.black,
-        title: Text('AULA RELAX'),
+        title: Text('AULA PROIEZIONI'),
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            //Costruttore del calendario
-            //Costruzione del layout
             TableCalendar(
               events: _events,
               initialCalendarFormat: CalendarFormat.month,
@@ -106,7 +110,6 @@ class _RelaxCalendarState extends State<RelaxCalendar> {
                   _selectedEvents = events;
                 });
               },
-              //Costruzione struttura
               builders: CalendarBuilders(
                 selectedDayBuilder: (context, date, events) => Container(
                     margin: const EdgeInsets.all(4.0),
@@ -131,7 +134,6 @@ class _RelaxCalendarState extends State<RelaxCalendar> {
               ),
               calendarController: _controller,
             ),
-            //Disposizione degli eventi
             ..._selectedEvents.map((event) => Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
@@ -219,10 +221,10 @@ class _RelaxCalendarState extends State<RelaxCalendar> {
 }
 
 // ignore: camel_case_types
-class relaxCubit extends Cubit<List<Time>> {
-  relaxCubit(List<Time> initialState) : super(initialState);
+class projectionCubit extends Cubit<List<Time>> {
+  projectionCubit(List<Time> initialState) : super(initialState);
 
-  void relax(List<Time> list) => emit(list);
+  void projection(List<Time> list) => emit(list);
 
   @override
   void onChange(Change<List<Time>> change) {

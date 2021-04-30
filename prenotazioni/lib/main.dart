@@ -29,6 +29,7 @@ LocalPrenotations get prenotazioni => _prenotazioni;
 void main() {
   _users = new Utenti();
   _stanze = new Aule();
+  _prenotazioni = new LocalPrenotations();
   Bloc.observer = MyBlocObserver();
   runApp(MyApp());
 }
@@ -47,8 +48,12 @@ class MyApp extends StatelessWidget {
   }
 }
 
+void reload() {
+  _prenotazioni = new LocalPrenotations();
+}
+
 //controller dei cubit
-//cubit creati in questa app: 1
+//cubit creati in questa app: 4
 class MyBlocObserver extends BlocObserver {
   @override
   void onCreate(BlocBase bloc) {
@@ -59,8 +64,9 @@ class MyBlocObserver extends BlocObserver {
   @override
   void onChange(BlocBase bloc, Change change) {
     super.onChange(bloc, change);
-    username = change.toString();
-    print('onChange -- ${bloc.runtimeType}, $username');
+    //username = change.toString();
+    reload();
+    print('onChange -- ${bloc.runtimeType}');
   }
 
   @override
@@ -88,6 +94,7 @@ class LocalPrenotations {
   }
 
   Future<List<Prenotation>> fetchPrenotation() async {
+    /*
     $FloorAppDatabase.databaseBuilder('app_database.db').build().then((db) => {
           db.prenotationDao.findAllPrenotation().then((pr) {
             database = db;
@@ -95,30 +102,35 @@ class LocalPrenotations {
             prenotations = pr;
           })
         });
+  */
     var response = await http.get(Uri.http('10.0.2.2:3000', '/Prenotation'));
     var responsePrenotations = json.decode(response.body) as List;
     if (response.statusCode == 200) {
       return responsePrenotations.map((e) => Prenotation.fromJson(e)).toList();
     } else {
-      throw Exception('Failed to load memo');
+      throw Exception('Failed to load');
     }
   }
 
   void _setOnlinePrenotations() async {
     onlinePrenotation.addAll(await fetchPrenotation());
+    /*
+    //Prenotazioni in locale non possibili
+    //Creazioni logout necessaria
     onlinePrenotation.forEach((element) {
       database.prenotationDao.insertPrenotation(element);
     });
+    */
   }
 
+  //db locale al momento non disponibile
   List<Prenotation> getUserPrenotation() {
     List<Prenotation> _return = <Prenotation>[];
     database.prenotationDao
         .findPrenotationByUser(username)
         .then((data) => _return = data);
     _return.forEach((element) {
-      print(
-          "${element.codP} ${element.idAula} ${element.time}, ${element.username}");
+      print("${element.codP} ${element.idAula} ${element.date}");
     });
     return _return;
   }

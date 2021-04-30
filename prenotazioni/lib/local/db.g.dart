@@ -105,8 +105,6 @@ class _$PrenotationDao extends PrenotationDao {
             (Prenotation item) => <String, Object>{
                   'codP': item.codP,
                   'idAula': item.idAula,
-                  'time': item.time,
-                  'username': item.username
                 }),
         _prenotationUpdateAdapter = UpdateAdapter(
             database,
@@ -115,8 +113,6 @@ class _$PrenotationDao extends PrenotationDao {
             (Prenotation item) => <String, Object>{
                   'codP': item.codP,
                   'idAula': item.idAula,
-                  'time': item.time,
-                  'username': item.username
                 }),
         _prenotationDeletionAdapter = DeletionAdapter(
             database,
@@ -125,8 +121,6 @@ class _$PrenotationDao extends PrenotationDao {
             (Prenotation item) => <String, Object>{
                   'codP': item.codP,
                   'idAula': item.idAula,
-                  'time': item.time,
-                  'username': item.username
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -167,20 +161,14 @@ class _$PrenotationDao extends PrenotationDao {
   Future<List<Prenotation>> findPrenotationByUser(String username) {
     return _queryAdapter.queryList('SELECT * FROM Prenotation WHERE anchor = ?',
         arguments: <dynamic>[username],
-        mapper: (Map<String, dynamic> row) => Prenotation(
-            row['codP'] as int,
-            row['idAula'] as int,
-            row['time'] as String,
-            row['username'] as String));
+        mapper: (Map<String, dynamic> row) => Prenotation(row['codP'] as int,
+            row['idAula'] as int, row['date'] as List<dynamic>));
   }
 
   @override
   Future<List<Prenotation>> findAllPrenotation() {
     return _queryAdapter.queryList('SELECT * FROM Prenotation',
-        mapper: (Map<String, dynamic> row) => Prenotation(
-            row['codP'] as int,
-            row['idAula'] as int,
-            row['time'] as String,
-            row['username'] as String));
+        mapper: (Map<String, dynamic> row) => Prenotation(row['codP'] as int,
+            row['idAula'] as int, row['date'] as List<dynamic>));
   }
 }

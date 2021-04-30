@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:prenotazioni/data/classi.dart';
-import 'package:prenotazioni/main.dart';
 import 'package:prenotazioni/main.dart' as room_import;
+import 'package:prenotazioni/prenotationCalendar/calendarLibrary.dart';
+
+
 
 class Homepage extends StatefulWidget {
   Homepage({Key key}) : super(key: key);
@@ -13,13 +15,11 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   List<Aula> aule;
-  LocalPrenotations prenotations;
 
   @override
   void initState() {
     super.initState();
     aule = room_import.stanze.stanze;
-    prenotations = new LocalPrenotations();
   }
 
   @override
@@ -78,7 +78,26 @@ class _HomepageState extends State<Homepage> {
       ),
       child: Center(
           child: TextButton(
-        onPressed: () {},
+        onPressed: () {
+          //molto rudimentale
+          //Impossibile avere un codice di creazione se si mantiene questa assegnazione di cambi
+          switch (index) {
+            case 6:
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ProjectionCalendar()));
+              break;
+            case 7:
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => LanguageCalendar()));
+              break;
+            case 8:
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => RelaxCalendar()));
+              break;
+          }
+        },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[

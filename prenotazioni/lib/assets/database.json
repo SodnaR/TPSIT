@@ -1,65 +1,105 @@
 {
-    "Aula":[
+    "Aula": [
         {
-            "id":1,
-            "intestazione":"1A"
+            "id": 1,
+            "intestazione": "1A"
         },
         {
-            "id":2,
-            "intestazione":"1B"
+            "id": 2,
+            "intestazione": "1B"
         },
         {
-            "id":3,
-            "intestazione":"2A"
+            "id": 3,
+            "intestazione": "2A"
         },
         {
-            "id":4,
-            "intestazione":"3A"
+            "id": 4,
+            "intestazione": "3A"
         },
         {
-            "id":5,
-            "intestazione":"4A"
+            "id": 5,
+            "intestazione": "4A"
         },
         {
-            "id":6,
-            "intestazione":"5A"
+            "id": 6,
+            "intestazione": "5A"
         },
         {
-            "id":7,
-            "intestazione":"Proiezione"
+            "id": 7,
+            "intestazione": "Proiezione"
         },
         {
-            "id":8,
-            "intestazione":"Laboratorio di lingue"
+            "id": 8,
+            "intestazione": "Laboratorio di lingue"
         },
         {
-            "id":9,
-            "intestazione":"Relax"
+            "id": 9,
+            "intestazione": "Relax"
         }
     ],
-    "Utente":[
+    "Utente": [
         {
-            "email":"samuele.zanella@itiszuccante.edu.it",
-            "password":"q",
-            "username":"samuele.zanella"
+            "email": "samuele.zanella@itiszuccante.edu.it",
+            "password": "q",
+            "username": "samuele.zanella"
         },
         {
-            "email":"riccardo.calligaro@itiszuccante.edu.it",
-            "password":"q",
-            "username":"riccardo.calligaro"
+            "email": "riccardo.calligaro@itiszuccante.edu.it",
+            "password": "q",
+            "username": "riccardo.calligaro"
         },
         {
-            "email":"valerio.bullo@itiszuccante.edu.it",
-            "password":"Q",
-            "username":"valerio.bullo"
+            "email": "valerio.bullo@itiszuccante.edu.it",
+            "password": "Q",
+            "username": "valerio.bullo"
         }
     ],
-    "Prenotation":[
+    "Prenotation": [
         {
-            "codP":1,
-            "idAula":7,
-            "time":"11:00",
-            "username":"valerio.bullo"
+            "id": 1,
+            "idAula": 7,
+            "date": [
+                {
+                    "day": 28,
+                    "month": 4,
+                    "year": 2021,
+                    "hour": 11,
+                    "username": "valerio.bullo"
+                },
+                {
+                    "day": 30,
+                    "month": 4,
+                    "year": 2021,
+                    "hour": 12,
+                    "username": "valerio.bullo"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "idAula": 8,
+            "date": [
+                {
+                    "day": 30,
+                    "month": 4,
+                    "year": 2021,
+                    "hour": 12,
+                    "username": "samuele.zanella"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "idAula": 9,
+            "date": [
+                {
+                    "day": 30,
+                    "month": 4,
+                    "year": 2021,
+                    "hour": 12,
+                    "username": "samuele.zanella"
+                }
+            ]
         }
     ]
 }
