@@ -112,8 +112,8 @@ class userCubit extends Cubit<String> {
   @override
   void onChange(Change<String> change) {
     super.onChange(change);
-    user_import.username = change.currentState;
-    print(change);
+    user_import.setUser(change.nextState.toString());
+    print("$change from user");
   }
 
   @override

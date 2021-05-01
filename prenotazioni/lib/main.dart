@@ -26,6 +26,11 @@ String username;
 LocalPrenotations _prenotazioni;
 LocalPrenotations get prenotazioni => _prenotazioni;
 
+setUser(String user) {
+  username = user;
+  print(username);
+}
+
 void main() {
   _users = new Utenti();
   _stanze = new Aule();
@@ -48,10 +53,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-void reload() {
-  _prenotazioni = new LocalPrenotations();
-}
-
 //controller dei cubit
 //cubit creati in questa app: 4
 class MyBlocObserver extends BlocObserver {
@@ -64,9 +65,8 @@ class MyBlocObserver extends BlocObserver {
   @override
   void onChange(BlocBase bloc, Change change) {
     super.onChange(bloc, change);
-    //username = change.toString();
-    reload();
-    print('onChange -- ${bloc.runtimeType}');
+    _prenotazioni.reload();
+    print('onChange -- ${bloc.runtimeType}, ');
   }
 
   @override
@@ -91,6 +91,10 @@ class LocalPrenotations {
   LocalPrenotations() {
     onlinePrenotation = [];
     _setOnlinePrenotations();
+  }
+
+  void reload() {
+    LocalPrenotations();
   }
 
   Future<List<Prenotation>> fetchPrenotation() async {

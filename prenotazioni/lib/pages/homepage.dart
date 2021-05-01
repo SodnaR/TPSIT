@@ -4,8 +4,6 @@ import 'package:prenotazioni/data/classi.dart';
 import 'package:prenotazioni/main.dart' as room_import;
 import 'package:prenotazioni/prenotationCalendar/calendarLibrary.dart';
 
-
-
 class Homepage extends StatefulWidget {
   Homepage({Key key}) : super(key: key);
 

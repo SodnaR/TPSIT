@@ -1,12 +1,17 @@
+import 'dart:convert';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:prenotazioni/data/prenotations.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'package:prenotazioni/main.dart' as prenotation_import;
+import 'package:http/http.dart' as http;
 
 final int _stanza = 8;
-final language = languageCubit([]);
+final language = languageCubit({});
+
+Prenotation _prenotazione;
 
 class LanguageCalendar extends StatefulWidget {
   @override
@@ -20,7 +25,7 @@ class _LanguageCalendarState extends State<LanguageCalendar> {
   Map<DateTime, List<dynamic>> _events;
   List<dynamic> _selectedEvents;
 
-  Prenotation prenotazione;
+  DateTime _selectedPrenotation;
 
   @override
   void initState() {
@@ -30,10 +35,9 @@ class _LanguageCalendarState extends State<LanguageCalendar> {
     _events = {};
     _selectedEvents = [];
 
-    prenotazione =
+    _prenotazione =
         prenotation_import.prenotazioni.onlinePrenotation[(_stanza - 7)];
-    final List<Time> events = prenotazione.date;
-    language.language(events);
+    final List<Time> events = _prenotazione.date;
 
     _events = Map.fromIterable(events,
         key: (e) => e.getDateTime(),
@@ -41,6 +45,7 @@ class _LanguageCalendarState extends State<LanguageCalendar> {
             .where(
                 (element) => areSameDay(e.getDateTime(), element.getDateTime()))
             .toList());
+    language.language(_events);
   }
 
   bool areSameDay(DateTime date1, DateTime date2) {
@@ -72,7 +77,7 @@ class _LanguageCalendarState extends State<LanguageCalendar> {
       appBar: AppBar(
         // automaticallyImplyLeading: false,
         backgroundColor: Colors.black,
-        title: Text('AULA RELAX'),
+        title: Text('LABORATORIO DI LINGUE'),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -169,60 +174,66 @@ class _LanguageCalendarState extends State<LanguageCalendar> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.black,
         child: Icon(Icons.add),
-        onPressed: _showAddDialog,
+        onPressed: _selectTime,
       ),
     );
   }
 
-  _showAddDialog() async {
-    await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              backgroundColor: Colors.white70,
-              title: Text("Add Prenotation"),
-              content: TextField(
-                controller: _eventController,
-              ),
-              actions: <Widget>[
-                ElevatedButton(
-                  child: Text(
-                    "Save",
-                    style: TextStyle(
-                        color: Colors.red, fontWeight: FontWeight.bold),
-                  ),
-                  onPressed: () {
-                    if (_eventController.text.isEmpty) return;
-                    addPrenotation();
-                  },
-                )
-              ],
-            ));
-  }
+  _selectTime() async {
+    //La data si seleziona in aticipo
+    //Selezione dell'ora
+    TimeOfDay t = await showTimePicker(
+        context: context, initialTime: TimeOfDay(hour: 8, minute: 00));
 
-  void addPrenotation() {
-    print(_controller.selectedDay.year.toString());
-    setState(() {
-      if (_events[_controller.selectedDay] != null) {
-        _events[_controller.selectedDay]
-            .add(Time(2021, 04, 1, 12, prenotation_import.username));
-      } else {
-        _events[_controller.selectedDay] = [];
-      }
-      _eventController.clear();
-      Navigator.pop(context);
-    });
+    if (t != null) {
+      setState(() {
+        //Salvo la data della prenotazione
+        _selectedPrenotation = DateTime(_controller.focusedDay.year,
+            _controller.focusedDay.month, _controller.focusedDay.day, t.hour);
+
+        //Se il giorno è selezionato posso creare la prenotazione
+        if (_events[_controller.selectedDay] != null) {
+          _prenotazione.date.add(Time(
+              _selectedPrenotation.year,
+              _selectedPrenotation.month,
+              _selectedPrenotation.day,
+              _selectedPrenotation.hour,
+              prenotation_import.username));
+
+          _events[_controller.selectedDay]
+              .add(_prenotazione.date[(_prenotazione.date.length - 1)] as Time);
+        } else {
+          _events[_controller.selectedDay] = [];
+          _prenotazione.date.add(Time(
+              _selectedPrenotation.year,
+              _selectedPrenotation.month,
+              _selectedPrenotation.day,
+              _selectedPrenotation.hour,
+              prenotation_import.username));
+
+          _events[_controller.selectedDay]
+              .add(_prenotazione.date[(_prenotazione.date.length - 1)] as Time);
+        }
+        _eventController.clear();
+      });
+      language.language(_events);
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => LanguageCalendar()));
+    }
   }
 }
 
 // ignore: camel_case_types
-class languageCubit extends Cubit<List<Time>> {
-  languageCubit(List<Time> initialState) : super(initialState);
+class languageCubit extends Cubit<Map<DateTime, List<dynamic>>> {
+  languageCubit(Map<DateTime, List<dynamic>> initialState)
+      : super(initialState);
 
-  void language(List<Time> list) => emit(list);
+  void language(Map<DateTime, List<dynamic>> map) => emit(map);
 
   @override
-  void onChange(Change<List<Time>> change) {
+  void onChange(Change<Map<DateTime, List<dynamic>>> change) {
     super.onChange(change);
+    _modifyJson();
     print(change);
   }
 
@@ -230,5 +241,23 @@ class languageCubit extends Cubit<List<Time>> {
   void onError(Object error, StackTrace stackTrace) {
     print('$error, $stackTrace');
     super.onError(error, stackTrace);
+  }
+}
+
+Future<void> _modifyJson() async {
+  var response = await http.put(
+    Uri.http('10.0.2.2:3000', '/Prenotation/1'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, dynamic>{
+      'id': _prenotazione.codP,
+      'idAula': _prenotazione.idAula,
+      'date': _prenotazione.date
+    }),
+  );
+  if (response.statusCode != 200) {
+    print(response.body + " " + response.statusCode.toString());
+    throw Exception('Failed to update prenotation');
   }
 }
