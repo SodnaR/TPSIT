@@ -389,4 +389,6 @@ Ogni calendario ha il proprio riferimento alla parte di database che gli apparti
 
 ## UML dei cubit
 
-      ![foto_non_trovata](https://github.com/SodnaR/TPSIT/blob/main/prenotazioni/UML.png)
+Stati dei cubit:
+
+   ![foto_non_trovata](https://github.com/SodnaR/TPSIT/blob/main/prenotazioni/UML.png)
