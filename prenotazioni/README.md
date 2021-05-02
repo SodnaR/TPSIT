@@ -386,3 +386,7 @@ Ogni calendario ha il proprio riferimento alla parte di database che gli apparti
             throw Exception('Failed to update prenotation');
         }
     }
+
+## UML dei cubit
+
+Stati dei cubit: ![foto_non_trovata]()
