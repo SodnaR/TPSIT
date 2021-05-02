@@ -50,19 +50,19 @@ Per l'operatività è tutta incentrata nel main, che crea le basi per gestire i 
 * Get:
         
     //creazione e condivisione degli utenti dal main
-    Utenti _users;
-    Utenti get users => _users;
+    * Utenti _users;
+    * Utenti get users => _users;
 
     //creazione e condivisione delle aule dal main
-    Aule _stanze;
-    Aule get stanze => _stanze;
+    * Aule _stanze;
+    * Aule get stanze => _stanze;
 
     //nome dell'utente
-    String username;
+    * String username;
 
     //creazione e condivisione database prenotazioni locale
-    LocalPrenotations _prenotazioni;
-    LocalPrenotations get prenotazioni => _prenotazioni;
+    * LocalPrenotations _prenotazioni;
+    * LocalPrenotations get prenotazioni => _prenotazioni;
 
 * Setup:
 
