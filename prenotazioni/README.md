@@ -64,7 +64,7 @@ Per l'operatività è tutta incentrata nel main, che crea le basi per gestire i 
     * LocalPrenotations _prenotazioni;
     * LocalPrenotations get prenotazioni => _prenotazioni;
 
-* Setup:
+Setup:
 
     void main() {
         _users = new Utenti();
