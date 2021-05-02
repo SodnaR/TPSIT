@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:prenotazioni/data/prenotations.dart';
+import 'package:prenotazioni/pages/homepage.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'package:prenotazioni/main.dart' as prenotation_import;
@@ -81,10 +82,19 @@ class _ProjectionCalendarState extends State<ProjectionCalendar> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        // automaticallyImplyLeading: false,
-        backgroundColor: Colors.black,
-        title: Text('AULA PROIEZIONI'),
-      ),
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.black,
+          title: Text('AULA PROIEZIONI'),
+          actions: <Widget>[
+            new IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => Homepage()));
+              },
+            ),
+            Padding(padding: EdgeInsets.symmetric(horizontal: 20)),
+          ]),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:prenotazioni/data/prenotations.dart';
+import 'package:prenotazioni/pages/homepage.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'package:prenotazioni/main.dart' as prenotation_import;
@@ -36,7 +37,6 @@ class _RelaxCalendarState extends State<RelaxCalendar> {
 
     _prenotazione =
         prenotation_import.prenotazioni.onlinePrenotation[(_stanza - 7)];
-    print("${prenotation_import.username}");
     final List<Time> events = _prenotazione.date;
 
     _events = Map.fromIterable(events,
@@ -75,10 +75,19 @@ class _RelaxCalendarState extends State<RelaxCalendar> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        // automaticallyImplyLeading: false,
-        backgroundColor: Colors.black,
-        title: Text('AULA RELAX'),
-      ),
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.black,
+          title: Text('AULA RELAX'),
+          actions: <Widget>[
+            new IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => Homepage()));
+              },
+            ),
+            Padding(padding: EdgeInsets.symmetric(horizontal: 20)),
+          ]),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
